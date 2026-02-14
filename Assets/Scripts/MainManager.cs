@@ -1,5 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
+using System.IO;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -11,10 +11,14 @@ public class MainManager : MonoBehaviour
     public Rigidbody Ball;
 
     public Text ScoreText;
+    public Text bestScoreText;
     public GameObject GameOverText;
+
+    private string playerName;
     
     private bool m_Started = false;
-    private int m_Points;
+    public int m_Points;
+    public int b_Points;
     
     private bool m_GameOver = false;
 
@@ -22,6 +26,10 @@ public class MainManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        playerName = StoreDatas.Instance.chosenNameValue;
+        bestScoreText.text = StoreDatas.Instance.bestScoreValue;
+        b_Points = StoreDatas.Instance.pointsValue;
+
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
         
@@ -57,7 +65,12 @@ public class MainManager : MonoBehaviour
         {
             if (Input.GetKeyDown(KeyCode.Space))
             {
-                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+                SceneManager.LoadScene(1);
+            }
+
+            else if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                SceneManager.LoadScene(0);
             }
         }
     }
@@ -65,12 +78,25 @@ public class MainManager : MonoBehaviour
     void AddPoint(int point)
     {
         m_Points += point;
-        ScoreText.text = $"Score : {m_Points}";
+        ScoreText.text = $"Score : {m_Points}   " + playerName;
+
+        if (b_Points < m_Points)
+        {
+            SetBestScore();
+        }
+    }
+
+    void SetBestScore()
+    {
+        b_Points = m_Points;
+        bestScoreText.text = $"Best Score :  {b_Points}   " + playerName;        
     }
 
     public void GameOver()
     {
         m_GameOver = true;
         GameOverText.SetActive(true);
+        StoreDatas.Instance.bestScoreValue = bestScoreText.text;
+        StoreDatas.Instance.pointsValue = b_Points;    
     }
 }
